@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Room Assignment Lookup</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Use Inter font -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6; /* Light gray background */
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+<!-- Main Application Card -->
+<div class="w-full max-w-lg bg-white shadow-xl rounded-2xl p-6 md:p-8">
+    <h1 class="text-3xl font-extrabold text-gray-900 mb-2 text-center">
+        Student Room Finder
+    </h1>
+    <p class="text-gray-500 text-center mb-6">
+        Enter the student's last name to find their assigned room.
+    </p>
+
+    <!-- Input Section -->
+    <div class="space-y-4">
+        <label for="lastNameInput" class="block text-sm font-medium text-gray-700">Last Name</label>
+        <input type="text" id="lastNameInput" placeholder="e.g., Smith or Wu"
+               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-lg transition duration-150 ease-in-out"
+               onkeydown="if(event.key === 'Enter') findRoom()">
+
+        <button onclick="findRoom()"
+                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl shadow-md transition duration-150 ease-in-out transform hover:scale-[1.01] active:scale-95">
+            Look Up Room
+        </button>
+    </div>
+
+    <!-- Result Display Section -->
+    <div id="resultContainer" class="mt-6 p-5 border-2 border-dashed border-gray-300 rounded-xl bg-gray-50 transition-all duration-300 ease-in-out opacity-0 h-16 flex items-center justify-center">
+        <p id="resultText" class="text-lg font-medium text-gray-700">Room assignment will appear here.</p>
+    </div>
+
+    <!-- Assignment Key Table -->
+    <div class="mt-8">
+        <h2 class="text-xl font-bold text-gray-800 mb-3 border-b pb-1">Assignment Key</h2>
+        <div class="overflow-x-auto rounded-lg shadow-sm border border-gray-200">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-blue-50">
+                <tr>
+                    <th class="px-4 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider rounded-tl-lg">Room</th>
+                    <th class="px-4 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider rounded-tr-lg">Last Name Range</th>
+                </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200 text-sm">
+                <tr>
+                    <td class="px-4 py-2 whitespace-nowrap font-medium text-blue-700">IB110</td>
+                    <td class="px-4 py-2 whitespace-nowrap">A - LE</td>
+                </tr>
+                <tr>
+                    <td class="px-4 py-2 whitespace-nowrap font-medium text-blue-700">MN1210</td>
+                    <td class="px-4 py-2 whitespace-nowrap">LI - OZ</td>
+                </tr>
+                <tr>
+                    <td class="px-4 py-2 whitespace-nowrap font-medium text-blue-700">IB245</td>
+                    <td class="px-4 py-2 whitespace-nowrap">P - SM</td>
+                </tr>
+                <tr>
+                    <td class="px-4 py-2 whitespace-nowrap font-medium text-blue-700">IB345</td>
+                    <td class="px-4 py-2 whitespace-nowrap">SO - WO</td>
+                </tr>
+                <tr>
+                    <td class="px-4 py-2 whitespace-nowrap font-medium text-blue-700">IB150</td>
+                    <td class="px-4 py-2 whitespace-nowrap">WU - Z</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    /**
+     * Core logic to determine the room based on the last name's alphabetical range.
+     * @param {string} lastName - The student's last name.
+     * @returns {string} The assigned room number or an error/status message.
+     */
+    function getRoomAssignment(lastName) {
+        if (!lastName || lastName.trim() === "") {
+            return "Error: Please enter a last name.";
+        }
+
+        // Standardize the last name for case-insensitive and consistent comparison
+        const processedName = lastName.trim().toUpperCase();
+
+        // Use string comparison based on the provided ranges.
+        // The comparison is inclusive of the lower bound and exclusive of the upper bound.
+        // A-LE (All names alphabetically before 'LI') -> IB110
+        if (processedName < 'LI') {
+            return 'IB110';
+        }
+        // LI-OZ (All names from 'LI' up to, but not including, 'P') -> MN1210
+        else if (processedName < 'P') {
+            return 'MN1210';
+        }
+        // P-SM (All names from 'P' up to, but not including, 'SO') -> IB245
+        else if (processedName < 'SO') {
+            return 'IB245';
+        }
+        // SO-WO (All names from 'SO' up to, but not including, 'WU') -> IB345
+        else if (processedName < 'WU') {
+            return 'IB345';
+        }
+        // WU-Z (All remaining names, 'WU' through 'Z') -> IB150
+        else {
+            return 'IB150';
+        }
+    }
+
+    /**
+     * Handles the button click/Enter key press event to display the room.
+     */
+    function findRoom() {
+        const inputElement = document.getElementById('lastNameInput');
+        const resultContainer = document.getElementById('resultContainer');
+        const resultText = document.getElementById('resultText');
+
+        const lastName = inputElement.value;
+        const roomResult = getRoomAssignment(lastName);
+
+        // Reset classes
+        resultContainer.className = 'mt-6 p-5 border-2 border-dashed rounded-xl transition-all duration-300 ease-in-out opacity-100 flex items-center justify-center h-16';
+        resultText.className = 'text-lg font-medium';
+
+        if (roomResult.startsWith("Error")) {
+            // Handle error
+            resultContainer.classList.add('bg-red-100', 'border-red-400');
+            resultText.classList.add('text-red-700');
+            resultText.textContent = roomResult.replace('Error: ', '');
+        } else {
+            // Handle success
+            resultContainer.classList.add('bg-green-100', 'border-green-400');
+            resultText.classList.add('text-green-700', 'font-bold');
+            resultText.innerHTML = `Assigned Room: <span class="text-2xl">${roomResult}</span>`;
+        }
+
+        // Ensure the container is visible
+        resultContainer.style.opacity = '1';
+    }
+
+    // Initialize display state on load
+    document.addEventListener('DOMContentLoaded', () => {
+        const resultContainer = document.getElementById('resultContainer');
+        resultContainer.style.opacity = '1';
+        resultContainer.classList.add('bg-gray-50', 'border-gray-300');
+        document.getElementById('resultText').textContent = "Room assignment will appear here.";
+    });
+</script>
+</body>
+</html>
